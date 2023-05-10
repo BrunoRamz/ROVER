@@ -1,0 +1,3 @@
+opencv-python
+flake8
+pycodestyle
