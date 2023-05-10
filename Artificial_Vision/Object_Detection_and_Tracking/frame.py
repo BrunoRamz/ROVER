@@ -1,4 +1,11 @@
 import cv2
+import os
+
+
+from dotenv import load_dotenv, find_dotenv
+
+
+load_dotenv(find_dotenv())
 
 
 class Frame:
@@ -33,7 +40,7 @@ class Frame:
 
 frame = Frame()
 
-scaling_factor = float(input("Enter the Sacling Factor: "))
+scaling_factor = float(os.getenv("SCALING_FACTOR"))
 cap = cv2.VideoCapture(0)
 previous_frame = frame.get_frame(cap, scaling_factor)
 current_frame = frame.get_frame(cap, scaling_factor)
