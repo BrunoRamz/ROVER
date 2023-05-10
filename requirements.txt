@@ -1,3 +1,4 @@
 opencv-python
 flake8
 pycodestyle
+python-dotenv
