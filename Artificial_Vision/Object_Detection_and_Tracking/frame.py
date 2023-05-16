@@ -25,7 +25,8 @@ class Frame:
             self.difference_current_previous_frame
             )
 
-    def get_frame(self, cap, scaling_factor):
+    def get_frame(self, cap):
+        scaling_factor = float(os.getenv("SCALING_FACTOR"))
         _, self.frame = cap.read()
         self.resize_image_frame = cv2.resize(
             self.frame, None, fx=scaling_factor,
@@ -40,11 +41,13 @@ class Frame:
 
 frame = Frame()
 
-scaling_factor = float(os.getenv("SCALING_FACTOR"))
-cap = cv2.VideoCapture(0)
-previous_frame = frame.get_frame(cap, scaling_factor)
-current_frame = frame.get_frame(cap, scaling_factor)
-next_frame = frame.get_frame(cap, scaling_factor)
+esc_key = int(os.getenv("ESC_KEY"))
+wait_key = int(os.getenv("WAIT_KEY"))
+device_index = int(os.getenv("DEVICE_INDEX"))
+cap = cv2.VideoCapture(device_index)
+previous_frame = frame.get_frame(cap)
+current_frame = frame.get_frame(cap)
+next_frame = frame.get_frame(cap)
 
 while True:
     cv2.imshow(
@@ -56,10 +59,10 @@ while True:
     )
     previous_frame = current_frame
     current_frame = next_frame
-    next_frame = frame.get_frame(cap, scaling_factor)
+    next_frame = frame.get_frame(cap)
 
-    key = cv2.waitKey(10)
-    if key == 27:
+    key = cv2.waitKey(wait_key)
+    if key == esc_key:
         break
 
 cv2.destroyAllWindows()
