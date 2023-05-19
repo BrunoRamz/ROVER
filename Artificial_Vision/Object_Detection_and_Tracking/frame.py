@@ -9,6 +9,11 @@ load_dotenv(find_dotenv())
 
 
 class Frame:
+    def __init__(self):
+        self.capture = cv2.VideoCapture(int(os.getenv("DEVICE_INDEX")))
+        self.previous_frame = self.get_frame()
+        self.current_frame = self.get_frame()
+        self.next_frame = self.get_frame()
 
     def frame_difference(
             self, previous_frame, current_frame, next_frame
@@ -25,44 +30,39 @@ class Frame:
             self.difference_current_previous_frame
             )
 
-    def get_frame(self, cap):
-        scaling_factor = float(os.getenv("SCALING_FACTOR"))
-        _, self.frame = cap.read()
-        self.resize_image_frame = cv2.resize(
-            self.frame, None, fx=scaling_factor,
-            fy=scaling_factor, interpolation=cv2.INTER_AREA
+    def get_frame(self):
+        _, self.frame = self.capture.read()
+        self.scaling_factor = float(os.getenv("SCALING_FACTOR"))
+        self.resize_image = cv2.resize(
+            self.frame, None, fx=self.scaling_factor,
+            fy=self.scaling_factor, interpolation=cv2.INTER_AREA
         )
         self.convert_grayscale = cv2.cvtColor(
             self.frame, cv2.COLOR_RGB2GRAY
         )
-
         return self.convert_grayscale
+
+    def start_frame(self):
+        esc_key = int(os.getenv("ESC_KEY"))
+        wait_key = int(os.getenv("WAIT_KEY"))
+
+        while True:
+            cv2.imshow(
+                'Object Movement',
+                self.frame_difference(
+                    self.previous_frame,
+                    self.current_frame,
+                    self.next_frame)
+                )
+            self.previous_frame = self.current_frame
+            self.current_frame = self.next_frame
+            self.next_frame = frame.get_frame()
+
+            key = cv2.waitKey(wait_key)
+            if key == esc_key:
+                break
+        cv2.destroyAllWindows()
 
 
 frame = Frame()
-
-esc_key = int(os.getenv("ESC_KEY"))
-wait_key = int(os.getenv("WAIT_KEY"))
-device_index = int(os.getenv("DEVICE_INDEX"))
-cap = cv2.VideoCapture(device_index)
-previous_frame = frame.get_frame(cap)
-current_frame = frame.get_frame(cap)
-next_frame = frame.get_frame(cap)
-
-while True:
-    cv2.imshow(
-        'Object Movement',
-        frame.frame_difference(
-            previous_frame,
-            current_frame,
-            next_frame)
-    )
-    previous_frame = current_frame
-    current_frame = next_frame
-    next_frame = frame.get_frame(cap)
-
-    key = cv2.waitKey(wait_key)
-    if key == esc_key:
-        break
-
-cv2.destroyAllWindows()
+frame.start_frame()
